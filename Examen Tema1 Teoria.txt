@@ -1,0 +1,153 @@
+Parte A. Fundamentos y conceptos — 2 puntos
+5 preguntas · 0,4 puntos cada una
+A1. Tipado y variables
+Explica la diferencia entre tipado dinámico y tipado fuerte en Python.
+¿Qué sucede al ejecutar este código y por qué?
+
+x = "10"
+y = 5
+print(x + y)
+
+Dará error ya que python por defecto no es capaz de sumar un string con un numero entero
+
+¿Cómo podrías conseguir que la suma se realizase numéricamente?
+
+Para que la suma se realizase numericamente, habria que quitarle las "" al valor almacenado en x, ya que "" sirve para representar valores de tipo string
+
+A2. Control de flujo
+Necesitas recorrer una lista de tareas y mostrar solamente las que tienen prioridad superior a 3.
+Explica qué utilizarías y por qué entre if, for y while. Escribe el fragmento de código que resolvería el problema.
+
+for tarea in Tareas:    #Declaro un bucle for para recorrer la lista entera 
+    if tarea > 3:       #Si el valor que hay en la posicion actual es mayor que tres
+        print(tarea)    #Imprime el valor
+
+A3. Colecciones
+Para cada situación, elige la estructura de datos más apropiada y justifica tu elección.
+1. Almacenar las tareas en el orden en que se crean, permitiendo añadir y eliminar tareas: Una lista, ya que permite acceder en todo momento a la posicion que se desee y se puede modificar a placer
+2. Almacenar las etiquetas de una tarea sin duplicados: Un set ya que no permite añadir valores duplicados
+3. Representar una tarea mediante campos como título, prioridad y estado: Un diccionario ya que permite almacenar valores mediante clave : valor
+4. Almacenar un par de coordenadas que no debería modificarse: Una tupla ya que no admite modificacion alguna una vez declarada
+
+
+
+A4. Funciones y argumentos
+Dada esta función:
+def crear_tarea(titulo, prioridad=3, urgente=False):
+    return {
+        "titulo": titulo,
+        "prioridad": prioridad,
+        "urgente": urgente
+    }
+
+Escribe tres llamadas diferentes que demuestren:
+- uso de argumentos posicionales; print(crear_tarea("Patata", 3, True))
+- uso de valores por defecto; print(crear_tarea("Mostaza"))
+- uso de argumentos por nombre; print(prioridad=1, urgente=True, Titulo="Gimnasio")
+Explica qué devuelve la función y qué sucedería si no tuviera return.
+
+La funcion devolvera un diccionario que almacenara con la palabra clave titulo, el titulo que le pasemos por parametro, en la palabra clave prioridad almacenara el valor prioridad que le pasemos por parametro(a no ser que no le demos nada, en cuyo caso nos dara 3; su valor por defecto) y en la palabra clave urgente almacenará un valor true o false que le demos por parametro(A no ser que no le demos nada, en cuyo caso lo declarará siempre como false)
+Si le quitamos el return, la funcion seguirá creando un diccionario clave : valor como antes pero como la funcion no devolveria nada, dicho diccionario se crearia pero se eliminaria al terminar de ejecutarse la funcion, ya que no deja de ser una variable local
+
+A5. Ámbito de variables
+Explica qué diferencia hay entre variables locales y globales. ¿Qué hace global?
+Una variable local es basicamente un tipo de variable que esta declarada para un scope en concreto, mientras que una variable global abarca y es visible por todo el programa entero
+la palabra reservada global en python sirve para decirle que fuera del scope en el que se encuentra una variable hay una variable con la misma etiqueta que es a la que queremos modificar, no crear una variable local
+
+¿Por qué una función puede modificar una lista recibida como argumento sin utilizar global?
+Porque cuando la pasas por parametro, python sabe que estas haciendo referencia a la lista que has pasado por parametro y en vez de crear un objeto nuevo, modifica el que le has pasado
+
+Parte B. Análisis de código — 2 puntos
+4 ejercicios · 0,5 puntos cada uno
+B1. Alias y copias
+Sin ejecutar el código, predice la salida de cada print y justifica tu respuesta.
+a = [1, 2]
+b = a
+c = a.copy()
+
+b.append(3)
+c.append(4)
+
+print(a)
+print(b)
+print(c)
+print(a == b)
+print(a is b)
+print(a is c)
+
+Saldrá: 
+[1,2,3] ya que a y b apuntan a la misma lista
+[1,2,3] lo mismo de antes por lo que ya expliqué
+[1,2,4] Ya que c es una copia superficial de a
+True Ya que al apuntar a lo mismo a y b, naturalmente tendran el mismo valor
+True Ya que ambos son dos formas de llamar a lo mismo
+False, Ya que en este caso, c al ser una copia de a, no son el mismo objeto, a pesar de que en un principio compartieron los mismo valores(aunque incluso en aquel momento tampoco eran el mismo objeto)
+ 
+B2. Mutabilidad
+¿Qué imprime el programa?
+def modificar_lista(lista):
+    lista.append(99)
+
+def modificar_numero(numero):
+    numero += 99
+
+datos = [1, 2]
+n = 10
+
+modificar_lista(datos)
+modificar_numero(n)
+
+print(datos)
+print(n)
+
+Saldrá:
+[1, 2, 99]
+10
+
+Explica por qué las dos funciones tienen efectos distintos sobre las variables del llamante.
+En python, cuando pasamos una lista por una funcion, python se encarga de modificar dicha lista de entrada; sin embargo, cuando le pasamos un tipo primitivo, python lo que hace es crear una variable local y modificar dicha variable, si quisieramos modificar el valor de entrada, tendriamos que indicarle mediante la palabra reservada global, que queremos modificar la variable global que tiene por encima
+
+B3. Copias superficiales y profundas
+¿Qué imprimen estas instrucciones?
+import copy
+
+original = [[1, 2], [3, 4]]
+superficial = original.copy()
+profunda = copy.deepcopy(original)
+
+original[0].append(5)
+
+print(superficial)
+print(profunda)
+
+Explica qué se copia en cada caso.
+
+Saldrá:
+[[1, 2, 5], [3, 4]] ya que superficial al ser una copia superficial de original, copia la lista principal pero comparte las listas dentro de la lista de original
+[[1, 2], [3, 4]] ya que profunda al ser una copia profunda de original, ha hecho una copia real de forma recursiva toooodo el contenido de original generando una nueva lista que usa a su vez sus propias listas
+
+
+B4. Detectar errores de diseño
+Analiza esta clase e identifica los problemas que encuentres:
+
+class Tarea:
+    def __init__(self, prioridad):
+        self.prioridad = prioridad
+
+    @property
+    def prioridad(self):
+        return self._prioridad
+
+    @prioridad.setter
+    def prioridad(self, valor):
+        if valor < 1 or valor > 5: 
+            raise ValueError("Prioridad inválida")
+        self.prioridad = valor #Aqui tendriamos que poner self._prioridad para evitar llamar de forma recursiva al setter
+
+    def mostrar(self):
+        print("Tarea") #Aqui lo unico que imprime por pantalla al hacer tarea.mostrar() es literalmente el string "Tarea", si quisieramos que sacara por pantalla el atributo, tendriamos que hacer print(self.prioridad)
+
+    def mostrar(self, detallada):
+        print("Tarea", detallada) #Aqui lo que ocurre es que literalmente saca por pantalla el string Tarea y lo intenta de la mejor forma que puede unir con lo que sea que le metas en el segundo parametro
+
+Indica qué ocurre al asignar una prioridad válida y qué sucede con las dos definiciones de mostrar. Propón las correcciones necesarias.
