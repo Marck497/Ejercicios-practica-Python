@@ -12,15 +12,19 @@
 # Para cualquier valor fuera del intervalo de 1 a 5, debe lanzar ValueError.
 
 def calcular_prioridad(nivel: int) -> str:
-    
-    if nivel >= 1 or nivel <= 2:
+
+    if not isinstance(nivel, int) or isinstance(nivel, bool):
+        raise ValueError("El nivel debe ser un entero entre 1 y 5")
+
+    if nivel < 1 or nivel > 5:
+        raise ValueError("El nivel debe estar entre 1 y 5")
+
+    if nivel <= 2:
         return "Baja"
     elif nivel == 3:
         return "Media"
-    elif nivel >= 4 or nivel <= 5:
-        return "Alta"
     else:
-        raise ValueError("ERROR valor no contemplado")
+        return "Alta"
 
 # C2. Contar tareas completadas
 # Implementa una función que reciba una lista de diccionarios con esta estructura:
@@ -37,7 +41,7 @@ def num_tareas_completada(dictTareas: dict) -> int:
     resultado = 0
     
     for tarea in dictTareas:
-        if(tarea["completada"] == True):
+        if(tarea["completada"]):
             resultado += 1
 
     return resultado
@@ -51,7 +55,7 @@ def num_tareas_completada(dictTareas: dict) -> int:
 # - lance ValueError si se intenta asignar un valor inválido.
 # Explica por qué debes almacenar el valor en _prioridad dentro del setter.
 
-class Tarea:
+class Tarea_Apartado_C:
 
     def __init__(self, prioridad=3):
 
@@ -107,6 +111,7 @@ class Vector:
 # - estado, que será pendiente o completada;
 # - una colección de etiquetas sin duplicados.
 # Debes implementar los siguientes requisitos.
+
 # D1. Clase Tarea — 1 punto
 # Crea la clase con:
 # - un constructor que reciba título, descripción y prioridad por defecto 3;
@@ -117,6 +122,46 @@ class Vector:
 # - un método completar() que cambie el estado;
 # - un método añadir_etiqueta(etiqueta) que evite duplicados.
 # Los datos deben almacenarse mediante atributos de instancia. Puedes utilizar atributos con _ para el almacenamiento interno cuando sea apropiado.
+
+class Tarea:
+    
+    def __init__(self, titulo:str, descripcion:str, prioridad=3):
+        self.titulo = titulo
+        self._descripcion = descripcion
+        self.prioridad = prioridad
+        self._estado = "Pendiente"
+        self._cjtoEtiquetas = set(None)
+
+    @property
+    def titulo(self):
+        return self._titulo
+
+    @titulo.setter
+    def titulo(self, valor) -> None:
+
+        if not(1 < len(valor) <= 50):
+            raise ValueError("ERROR, valor no soportado")
+
+        self._titulo = valor
+
+    @property
+    def prioridad(self):
+        return self._prioridad
+
+    @prioridad.setter
+    def prioridad(self, valor) -> None:
+
+        if not(1 <= valor <= 5):
+            raise ValueError("ERROR, valor no soportado")
+
+        self._prioridad = valor
+
+    def completar(self) -> None:
+        self._estado = "Completada"
+
+    def add_etiqueta(self, etiqueta) -> None:
+        self._cjtoEtiquetas.add(etiqueta) #No hace falta añadir control de flujo para el parametro de entrada, ya que el propio set() se encarga de los duplicados
+
 # D2. Representación y métodos auxiliares — 0,75 puntos
 # Añade a Tarea:
 # - __str__, para mostrar la tarea de forma legible;
@@ -124,19 +169,88 @@ class Vector:
 # - un @staticmethod llamado prioridad_valida(valor);
 # - un @classmethod llamado desde_dict(cls, datos).
 # El método desde_dict debe crear una tarea a partir de un diccionario. Si falta la prioridad, utilizará 3; si faltan las etiquetas, utilizará un conjunto vacío.
+
+    def __str__(self):
+        return f"Titulo de la tarea = {self._titulo} \nDescripcion de la tarea= {self._descripcion} \nPrioridad = {self._prioridad} \nEstado de la tarea = {self._estado} \nConjunto de etiquetas de la tarea = {self._cjtoEtiquetas}"
+
+    def __repr__(self):
+        return f" Tarea:\nTitulo= {self._titulo} \nDescripcion= {self._descripcion} \nPrioridad= {self._prioridad} \nEstado= {self._estado} \nEtiquetas= {self._cjtoEtiquetas}"
+
+    @staticmethod
+    def prioridad_valida(valor) -> bool:
+        
+        if not(1 <= valor <= 5):
+            return False
+
+        return True
+
+    @classmethod
+    def desde_dict(cls, datos:dict) -> "Tarea":
+
+        nuevaTarea = cls(datos["titulo"], datos["descripcion"])
+
+        if ("prioridad" in datos):
+
+            nuevaTarea.prioridad(datos["prioridad"])
+
+        if("etiquetas" in datos):
+
+            nuevaTarea.add_etiqueta(datos["etiquetas"])
+
+        return nuevaTarea
+
 # D3. Funciones de gestión — 0,75 puntos
 # Implementa estas funciones fuera de la clase:
 # def añadir_tarea(tareas, tarea):
 #     ...
 
+def add_tarea(listaTareas:list, tarea:Tarea):
+    
+    listaTareas.append(tarea)
+
 # def buscar_tarea(tareas, titulo):
 #     ...
 
+def buscar_tarea(tareas:list, titulo_solicitado:str) -> "Tarea"|None:
+
+    for tarea in tareas:
+        
+        if tarea.titulo == titulo_solicitado:
+            return tarea
+
+    return None
+        
 # def contar_completadas(tareas):
 #     ...
 
+def contar_completadas(tareas:list) -> int:
+
+    resultado = 0
+
+    for tarea in tareas:
+
+        if tarea.estado == "completada":
+            resultado += 1
+
+    return resultado
+
+
 # def filtrar_por_prioridad(tareas, prioridad_minima):
 #     ...
+
+def filtrar_por_prioridad(tareas:list, prioridad_minima:int) -> list|None:
+
+    resultado = []
+
+    for tarea in tareas:
+        
+        if tarea._estado >= prioridad_minima:
+            resultado.append(tarea)
+
+    if not resultado: #Compruebo si la lista esta vacia
+        return None
+
+    return resultado
 
 # Comportamiento esperado:
 # - añadir_tarea incorpora una tarea a la colección.
@@ -144,6 +258,9 @@ class Vector:
 # - contar_completadas devuelve el número de tareas completadas.
 # - filtrar_por_prioridad devuelve una nueva lista con las tareas cuya prioridad sea igual o superior a la indicada.
 # La función de filtrado no debe modificar la colección original.
+
+
+
 # D4. Programa principal — 0,75 puntos
 # Implementa un programa que:
 # 1. Cree al menos tres tareas, dos de ellas a partir de diccionarios.
@@ -173,11 +290,3 @@ class Vector:
 # - No copies soluciones de Internet.
 # - Puedes utilizar list, dict, set, funciones, clases, excepciones, propiedades y métodos especiales estudiados.
 # - Puedes dividir el código en varias funciones y probarlo por etapas.
-# Cómo entregar el examen
-# Te recomiendo resolverlo en este orden:
-# 1. Partes A y B: responde por escrito.
-# 2. Parte C: envía el código de cada ejercicio.
-# 3. Parte D: implementa el proyecto y envíame el código completo.
-# Puedes entregarlo por partes; no es necesario escribir todo de una vez. Corregiré cada sección, indicaré qué está bien, qué debes modificar y qué nota obtienes.
-# La nota final será sobre 10, con especial atención al proyecto integrador. Si el programa funciona pero presenta problemas conceptuales —por ejemplo, recursión accidental en un setter, copias innecesarias o un valor por defecto mutable—, también se tendrán en cuenta.
-# Comienza por la Parte A, preguntas A1–A5. No te daré las soluciones antes de que las intentes.
