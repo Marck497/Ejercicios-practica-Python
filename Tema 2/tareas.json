@@ -1,0 +1,12 @@
+[
+  {
+    "titulo": "Comprar nueces",
+    "prioridad": 4,
+    "completada": false
+  },
+  {
+    "titulo": "Sacar a pasear al perro",
+    "prioridad": 1,
+    "completada": false
+  }
+]
