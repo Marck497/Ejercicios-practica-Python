@@ -1,0 +1,176 @@
+Parte A — Referencias, mutabilidad y funciones
+Valor: 1,5 puntos. Cada pregunta vale 0,5 puntos.
+Pregunta 1. Referencias y copias
+Observa el siguiente código:
+
+import copy
+
+original = [[1], [2]]
+
+alias = original
+somera = original.copy()
+profunda = copy.deepcopy(original)
+
+somera[0].append(9)
+profunda[1].append(8)
+
+print(original)
+print(alias)
+print(somera)
+print(profunda)
+
+
+Responde:
+a) ¿Qué imprime cada uno de los cuatro print()?
+b) ¿Por qué modificar somera[0] también afecta a original, pero modificar profunda[1] no lo hace?
+c) ¿Qué diferencia hay entre alias y somera?
+
+    print(original) = [[1, 9],[2]]
+    print(alias) = Lo mismo que original, ya que apuntan a lo mismo
+    print(somera) = [[1, 9], [2]] ya que aunque la lista principal es nueva, comparten las listas de dentro de la principal ya que es una copia superficial
+    print(profunda) = [[1], [2, 8]] al ser una copia profunda todo lo que hay en ella son objetos distintos, aunque tengan el mismo valor originalmente
+
+
+Pregunta 2. Argumentos predeterminados mutables
+Analiza este código:
+
+def agregar_tarea(titulo, tareas=[]):
+    tareas.append(titulo)
+    return tareas
+
+print(agregar_tarea("Estudiar Python"))
+print(agregar_tarea("Repasar VHDL"))
+
+a) ¿Cuál es la salida exacta?
+b) ¿Por qué sucede esto?
+
+    Lo que pasa es que al inicializar por parametro la lista, haces que todas las tareas compartan la misma lista ya que la estas creando en la definicion de la funcion
+
+c) Modifica la función para evitar el problema, manteniendo la posibilidad de proporcionar una lista de tareas existente.
+
+    def agregar_tarea(titulo, tarea=None) -> list:
+
+        if tarea is None:
+
+            tarea = [] #Si no se proporcina una tarea, se crea una nueva que no erá compartida
+
+        tarea.append(titulo)
+        return tarea
+
+Pregunta 3. Igualdad e identidad
+Explica la diferencia entre == e is.
+
+"==" devuelve un valor True o False, dependiendo de si el VALOR de lo que se compara es lo mismo, mientras que is compara los dos objetos tal cual y devuelve True si ambos son lo mismo, es decir que da true si ambos son alias que apuntan a lo mismo
+
+Indica qué imprimiría este código y justifica tu respuesta:
+a = [1, 2, 3]
+b = [1, 2, 3]
+c = a
+
+print(a == b) #True, ya que contienen lo mismo, a pesar de ser distintas listas
+print(a is b) #False, ya que aunque tienen lo mismo, no apuntan a la misma lista
+print(a is c) #True, ya que ambos son alias que apuntan a la misma lista
+
+Además, indica con qué valor especial se recomienda utilizar is habitualmente para comprobar si una variable representa ausencia de valor. Se usa None
+
+
+Parte B — Clases, encapsulamiento y métodos especiales
+Valor: 1 punto · Evaluación acumulativa de los Temas 1 y 2.
+Pregunta 4. Propiedades y encapsulamiento
+Valor: 0,5 puntos
+Tenemos la siguiente clase:
+
+class Producto:
+    def __init__(self, nombre: str, precio: float):
+        self.nombre = nombre
+        self._precio = precio
+
+
+Queremos impedir que el precio se consulte o modifique directamente mediante _precio desde el código que utiliza la clase, y proporcionar una propiedad pública precio que permita consultarlo y modificarlo.
+a) Explica brevemente para qué sirven @property y @precio.setter.
+
+    @property permite crear un pseudo getter para la clase y @precio.setter fijar una serie de parametros de control en el setter de nuestras funciones
+
+b) Escribe el código que añadirías a la clase para implementar ambas propiedades. El setter debe rechazar precios negativos mediante ValueError.
+
+    @property
+    def precio(self) -> float: #Es como un getter para la clase
+        return self._precio #para evitar llamadas recursivas
+
+    @precio.setter #El setter de la clase con control de flujo
+    def precio(self, valor) -> None:
+        
+        if valor < 0:
+            raise ValueError("ERROR, no se admiten valores NEGATIVOS")
+
+        self._precio = valor
+
+
+Pregunta 5. Métodos especiales
+Valor: 0,5 puntos
+Observa esta clase:
+
+class Caja:
+    def __init__(self, contenido: list):
+        self.contenido = contenido
+
+    def __len__(self):
+        return len(self.contenido)
+
+    def __str__(self):
+        return f"Caja con {len(self)} elementos"
+
+
+caja = Caja(["libro", "cuaderno", "bolígrafo"])
+
+print(len(caja))
+print(str(caja))
+
+Responde:
+a) ¿Qué imprime cada instrucción?
+
+    print(len(caja)) = Sacará por pantalla lo que haya almacenado en el atributo self.contenido de caja
+    print(str(caja)) = Sacará por pantalla Caja con "Lo que haya en self.contenido" elementos
+
+b) ¿Qué función cumple __len__()? ¿Y __str__()?
+
+    __len__ basicamente sirve para que la funcion len() de python sea capaz de interpretar que hacer cuando la llamamos con una clase
+    __str__ Sirve para que cuando hagamos print(MiClase), python sepa que hacer y saque por pantalla una descripcion dirigida al usuario, no al desarrallodor, ya que esa sería con __repr__
+
+c) ¿Por qué podemos utilizar len(caja) en vez de llamar directamente a caja.__len__()?
+
+    Porque python adapta dicho metodos especial para que funcione con len()
+
+
+
+Pregunta 8 — Composición y agregación
+Valor: 0,5 puntos.
+Imagina que tenemos una clase Tarea y una clase Proyecto que contiene varias tareas.
+Considera estas dos implementaciones:
+
+Implementación A = agregación
+class Proyecto:
+    def __init__(self, nombre: str):
+        self.nombre = nombre
+        self.tareas = []
+
+    def agregar_tarea(self, tarea: Tarea) -> None:
+        self.tareas.append(tarea)
+
+
+Implementación B = Composición
+class Proyecto:
+    def __init__(self, nombre: str):
+        self.nombre = nombre
+        self.tareas = []
+
+    def crear_tarea(self, titulo: str) -> None:
+        nueva_tarea = Tarea(titulo)
+        self.tareas.append(nueva_tarea)
+
+
+Responde:
+a) ¿Cuál de las dos implementaciones representa más directamente una agregación y cuál una composición?
+b) Explica la diferencia conceptual entre ambas relaciones. ¿La diferencia consiste simplemente en que las tareas sean obligatorias u opcionales?
+
+   agregación se encarga de agrupar cosas que pueden existir independientemente de la clase, mientras que composición considera como suyas las partes que procesa y por tanto el ciclo de vida de estas esta vinculado a la propia clase
